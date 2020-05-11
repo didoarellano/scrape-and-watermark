@@ -45,7 +45,7 @@ async function downloadImage(outputDir, url, cover=false) {
     return new Promise((resolve, reject) => {
         response.data
                 .pipe(fs.createWriteStream(filename))
-                .on('finish', () => resolve())
+                .on('finish', () => resolve(filename))
                 .on('error', e => reject(e))
     })
 }
