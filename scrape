@@ -13,8 +13,8 @@ const URLS_FILE = './urls.txt'
 
 ;(async () => {
     try {
-        const urls = await readFile(URLS_FILE, 'utf8')
-        await Promise.all(urls.trim().split('\n').map(doIt))
+        const urls = (await readFile(URLS_FILE, 'utf8')).trim().split('\n')
+        await Promise.all(urls.map(doIt))
         console.log('All done')
     } catch (e) {
         console.error(e)
@@ -31,17 +31,11 @@ async function doIt(url) {
 
 function extractData(html) {
     const $ = cheerio.load(html)
-    const imageUrls = $('.panel-image img').map((i, el) => {
-        return $(el).attr('src')
-    }).get()
+    const name = $('.new-product-page-name').text()
+    const imageUrls = $('.panel-image img').map((i, el) => $(el).attr('src')).get()
     // Assume first image found is the cover image
     const coverImage = imageUrls[0]
-
-    return {
-        name: $('.new-product-page-name').text(),
-        coverImage,
-        imageUrls
-    }
+    return { name, coverImage, imageUrls }
 }
 
 async function downloadImage(outputDir, url, cover=false) {
