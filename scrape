@@ -53,7 +53,7 @@ async function downloadImage(outputDir, url, cover=false) {
 async function downloadImages({ name, coverImage, imageUrls }) {
     const dir = `./output/${name}`
     await mkdirp(dir)
-    return await Promise.all(
+    return Promise.all(
         imageUrls.map(url => downloadImage(dir, url, url === coverImage))
     )
 }
