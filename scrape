@@ -31,17 +31,23 @@ async function doIt(url) {
 
 function extractData(html) {
     const $ = cheerio.load(html)
+    const imageUrls = $('.panel-image img').map((i, el) => {
+        return $(el).attr('src')
+    }).get()
+    // Assume first image found is the cover image
+    const coverImage = imageUrls[0]
+
     return {
         name: $('.new-product-page-name').text(),
-        imageUrls: $('.panel-image img').map((i, el) => {
-            return $(el).attr('src')
-        }).get()
+        coverImage,
+        imageUrls
     }
 }
 
-async function downloadImage(outputDir, url) {
+async function downloadImage(outputDir, url, cover=false) {
     const response = await axios({ url, responseType: 'stream' })
-    const filename = path.join(outputDir, path.basename(url))
+    const coverPrefix = cover ? 'cover-' : ''
+    const filename = path.join(outputDir, coverPrefix + path.basename(url))
     return new Promise((resolve, reject) => {
         response.data
                 .pipe(fs.createWriteStream(filename))
@@ -50,8 +56,10 @@ async function downloadImage(outputDir, url) {
     })
 }
 
-async function downloadImages({ name, imageUrls }) {
+async function downloadImages({ name, coverImage, imageUrls }) {
     const dir = `./output/${name}`
     await mkdirp(dir)
-    return await Promise.all(imageUrls.map(url => downloadImage(dir, url)))
+    return await Promise.all(
+        imageUrls.map(url => downloadImage(dir, url, url === coverImage))
+    )
 }
