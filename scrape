@@ -24,7 +24,9 @@ const URLS_FILE = './urls.txt'
 async function doIt(url) {
     const response = await axios(url)
     const data = extractData(response.data)
-    const images = await downloadImages(data)
+    const dir = `./output/${data.name}`
+    await mkdirp(dir)
+    const images = await downloadImages(dir, data)
     console.log(`Finished downloading images for ${data.name}`)
     return images
 }
@@ -50,9 +52,7 @@ async function downloadImage(outputDir, url, cover=false) {
     })
 }
 
-async function downloadImages({ name, coverImage, imageUrls }) {
-    const dir = `./output/${name}`
-    await mkdirp(dir)
+async function downloadImages(dir, { coverImage, imageUrls }) {
     return Promise.all(
         imageUrls.map(url => downloadImage(dir, url, url === coverImage))
     )
