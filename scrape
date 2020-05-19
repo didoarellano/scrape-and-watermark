@@ -26,6 +26,14 @@ async function doIt(url) {
     const data = extractData(response.data)
     const dir = `./output/${data.name}`
     await mkdirp(dir)
+
+    // Promisifying writeFile doesn't work so well so we use its regular async
+    // form
+    fs.writeFile(`${dir}/link.txt`, url, (err) => {
+        if (err) throw err
+        console.log(`${data.name} link saved to text file`)
+    })
+
     const images = await downloadImages(dir, data)
     console.log(`Finished downloading images for ${data.name}`)
     return images
