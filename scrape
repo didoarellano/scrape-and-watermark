@@ -9,6 +9,8 @@ const cheerio = require('cheerio')
 
 const readFile = util.promisify(fs.readFile)
 
+const watermark = require('./lib/watermark.js')
+
 const URLS_FILE = './urls.txt'
 
 ;(async () => {
@@ -36,6 +38,10 @@ async function doIt(url) {
 
     const images = await downloadImages(dir, data)
     console.log(`Finished downloading images for ${data.name}`)
+
+    console.log('Applying watermarks')
+    await Promise.all(images.map(watermark))
+    console.log('Finished applying watermarks')
     return images
 }
 
